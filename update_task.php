@@ -13,28 +13,18 @@
     "$database_password"
 );
 
- // step 3: get student id and updated name from $_POST
- $todo_completed = $_POST["todo_completed"];
- $todo_id = $_POST["todo_id"];
-
- // do error checking. Check if todo name is empty or not
-
-
-   // Step 4: update the name in database
-       // 4.1 - sql command (recipe)
-       if($todo_completed===0){
-        
-       }
-       $sql = "UPDATE todos SET completed = 1 WHERE id = :id";
-       // 4.2 - prepare (put everything into the bowl)
-       $query = $database->prepare( $sql );
-       // 4.3 - execute (cook it)
-       $query->execute([
-           'id' => $todo_id
-       ]);
-
-   // Step 5: redirect back to index.php
-   header("Location: index.php");
-   exit;
-
- 
+ // step 3: get task id and completed is 0/1 from $_POST
+$todo_id = $_POST['todo_id'];
+$todo_completed = $_POST["todo_completed"];
+// do error checking. Check if task is completed or not
+if ($todo_completed == 0) {
+    $sql = "UPDATE todos SET completed = 1 WHERE id = :id";
+} else if ($todo_completed == 1) {
+    $sql = "UPDATE todos SET completed = 0 WHERE id = :id";
+}
+$query = $database->prepare($sql);
+$query->execute([
+    'id' => $todo_id,
+]);
+header("Location: index.php");
+exit;

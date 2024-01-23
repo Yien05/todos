@@ -1,4 +1,7 @@
 <?php
+  // start session
+  session_start();
+
  // Step 1: list out all tje database info
  $host = 'devkinsta_db';
  $database_name = 'TODO_list';
@@ -51,6 +54,11 @@
     >
       <div class="card-body">
         <h3 class="card-title mb-3">My Todo List</h3>
+        <?php if ( isset( $_SESSION["user"] ) ) : ?>
+        <div class="d-flex gap-2">
+          <span>User: <?= $_SESSION["user"]["name"]; ?></span>
+          <a href="logout.php" class="btn btn-link p-0" id="login">Logout</a>
+        </div>
         <ul class="list-group">
       <?php foreach ( $todos as $todo): ?>
           <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -69,20 +77,20 @@
                   type="hidden"
                   name="todo_completed"
                   value="<?= $todo["completed"]; ?>" />
-              <?php 
-              if ( $todo["completed"] == 1 ) { ?>
-                 <button class="btn btn-sm btn-success">
-                    <i class="bi bi-check-square"></i>
-                  </button>
-              <?php } else { ?>
-                <button class="btn btn-sm btn-light">
-                  <i class="bi bi-square"></i>
-                </button>
-
-              <?php } ?>
-
-              </form>
-              <span class="ms-2"><?= $todo["label"]; ?></span>
+                  <?php if ($todo["completed"] == 0):?>
+                    <button class="btn btn-sm btn-light">
+                      <i class="bi bi-square"></i>
+                    </button>
+                    <span><?= $todo['label'];?></span>
+                    <?php else : ?>
+                    <button class="btn btn-sm btn-success">
+                      <i class="bi bi-check-square"></i>
+                    </button>
+                    <span class="ms-2 text-decoration-line-through"><?= $todo['label'];?></span>
+                    <?php endif; ?>
+                    
+                  </form>
+              
              
             </div>
           
@@ -101,6 +109,8 @@
           </li>
       <?php endforeach; ?>  
         </ul>
+        <?php endif; ?>
+        <?php if ( isset( $_SESSION["user"] ) ) : ?>
         <div class="mt-4">
           <form  method="POST"  action="add_task.php"class="d-flex justify-content-between align-items-center">
             <input
@@ -112,12 +122,20 @@
             />
             <button class="btn btn-primary btn-sm rounded ms-2">Add</button>
           </form>
+
           <!--To render the $students data using foreach -->
          
 
 
    
         </div>
+        <?php else : ?>
+          <div class="d-flex justify-content-center">
+            <a href="login.php" class="btn btn-link" id="login">Login</a>
+            <a href="signup.php" class="btn btn-link" id="signup">Sign Up</a>
+          </div>
+          
+        <?php endif; ?>
       </div>
     </div>
 
