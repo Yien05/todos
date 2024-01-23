@@ -1,6 +1,7 @@
 <?php
   // start session
   session_start();
+  
 
  // Step 1: list out all tje database info
  $host = 'devkinsta_db';
