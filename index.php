@@ -1,145 +1,57 @@
 <?php
-  // start session
+
   session_start();
-  
 
- // Step 1: list out all tje database info
- $host = 'devkinsta_db';
- $database_name = 'TODO_list';
- $database_user = 'root';
- $database_password = 'ohx5h6Sd98yrmgJs';
+  // require the functions.php file
+  require "includes/functions.php";
+  require "includes/class/auth.php";
+  require "includes/class-task.php";
+  require "includes/class-db.php";
 
+  // get the current path the user is on
+  $path = $_SERVER["REQUEST_URI"];
+  // trim out the beginning slash
+  $path = trim( $path, '/' );
+
+  // init classes
+  $auth = new Authentication();
+  $task = new Task();
+
+  // simple router system - deciding what page to load based on the url
+  // Routes
+  switch ( $path ) {
+    // action ruotes
+    case 'auth/login':
+      $auth->login();
+      break;
+    case 'auth/signup':
+      $auth->signup();
+      break;
+    case 'task/add':
+      $task->add();
+      break;
+    case 'task/update':
+      $task->update();
+      break;
+    case 'task/delete':
+      $task->delete();
+      break;
+
+    // page routes
+    case 'login':
+      $page_title = "Login";
+      require 'pages/login.php';
+      break;
+    case 'signup':
+      $page_title = "Sign Up";
+      require 'pages/signup.php';
+      break;
+    case 'logout':
+      $auth->logout();
+      break;
+    default:
+      $page_title = "Home Page";
+      require 'pages/home.php';
+      break;
+  }
  
- // Step 2: Connect to the database to PHP
- $database = new PDO(
-    "mysql:host=$host; dbname=$database_name",
-    "$database_user",
-    "$database_password"
- );
-
- // Step 3: Load the data from the database
-   // Step 3.1: -prepare the recipe (SQL command)
-   $sql = "SELECT * FROM todos";
-   // Step 3.2: -pour everything in the bowl (prepare your database)
-   $query = $database->prepare($sql);
-   // Step 3.3 -cook it
-   $query->execute();
-   // Step 3.4 - eat it (fetch all)
-   $todos = $query -> fetchAll();
-?>
-
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>TODO App</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css"
-    />
-    <style type="text/css">
-      body {
-        background: #f1f1f1;
-      }
-    </style>
-  </head>
-  <body>
-    <div
-      class="card rounded shadow-sm"
-      style="max-width: 500px; margin: 60px auto;"
-    >
-      <div class="card-body">
-        <h3 class="card-title mb-3">My Todo List</h3>
-        <?php if ( isset( $_SESSION["user"] ) ) : ?>
-        <div class="d-flex gap-2">
-          <span>User: <?= $_SESSION["user"]["name"]; ?></span>
-          <a href="logout.php" class="btn btn-link p-0" id="login">Logout</a>
-        </div>
-        <ul class="list-group">
-      <?php foreach ( $todos as $todo): ?>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-            <form 
-                method="POST" 
-                action="update_task.php"
-                class="d-flex gap-1">
-                
-                  <input 
-                  type="hidden"
-                  name="todo_id"
-                  value="<?= $todo["id"]; ?>" />
-
-                  <input 
-                  type="hidden"
-                  name="todo_completed"
-                  value="<?= $todo["completed"]; ?>" />
-                  <?php if ($todo["completed"] == 0):?>
-                    <button class="btn btn-sm btn-light">
-                      <i class="bi bi-square"></i>
-                    </button>
-                    <span><?= $todo['label'];?></span>
-                    <?php else : ?>
-                    <button class="btn btn-sm btn-success">
-                      <i class="bi bi-check-square"></i>
-                    </button>
-                    <span class="ms-2 text-decoration-line-through"><?= $todo['label'];?></span>
-                    <?php endif; ?>
-                    
-                  </form>
-              
-             
-            </div>
-          
-           <!-- delete Todo List-->
-            <div>
-            <form method="POST" action="delete_task.php">
-            <input 
-                  type="hidden"
-                  name="todo_id"
-                  value="<?= $todo["id"]; ?>" />
-              <button class="btn btn-sm btn-danger">
-                <i class="bi bi-trash"></i>
-              </button>
-              </form>
-            </div>
-          </li>
-      <?php endforeach; ?>  
-        </ul>
-        <?php endif; ?>
-        <?php if ( isset( $_SESSION["user"] ) ) : ?>
-        <div class="mt-4">
-          <form  method="POST"  action="add_task.php"class="d-flex justify-content-between align-items-center">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Add new item..."
-              name="todo_label"
-              required
-            />
-            <button class="btn btn-primary btn-sm rounded ms-2">Add</button>
-          </form>
-
-          <!--To render the $students data using foreach -->
-         
-
-
-   
-        </div>
-        <?php else : ?>
-          <div class="d-flex justify-content-center">
-            <a href="login.php" class="btn btn-link" id="login">Login</a>
-            <a href="signup.php" class="btn btn-link" id="signup">Sign Up</a>
-          </div>
-          
-        <?php endif; ?>
-      </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
-</html>
